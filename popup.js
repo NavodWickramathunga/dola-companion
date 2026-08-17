@@ -39,6 +39,13 @@ function setStatus(text, kind) {
 
 function lock(reason) {
   el.panel.classList.add("locked");
+  el.panel.setAttribute("aria-busy", "true");
+  // The .locked class only sets pointer-events:none, which a keyboard walks
+  // straight past. Take the controls out of the tab order for real.
+  el.panel.inert = true;
+  for (const node of el.panel.querySelectorAll("input, select, button")) {
+    node.disabled = true;
+  }
   el.siteState.textContent = reason;
   el.siteState.className = "state state--off";
 }

@@ -1,9 +1,10 @@
 {
   "manifest_version": 3,
   "name": "Dola Multi-Tab — Soori Academy",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Open up to 20 copies of your Dola chat tab and auto-set each one to Pro + your chosen Skill.",
-  "permissions": ["tabs", "scripting", "storage"],
+  "minimum_chrome_version": "102",
+  "permissions": ["tabs", "storage"],
   "host_permissions": [
     "https://www.dola.com/*",
     "https://dola.com/*"

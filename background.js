@@ -5,13 +5,18 @@
  *  - Open N copies of the active Dola tab (hard cap 20)
  *  - Remember which new tabs must be auto-configured (Pro + Skill)
  *  - Hand that config to the content script when the new tab asks for it
+ *
+ * The pending-job list lives in chrome.storage.session, not in a Map. An MV3
+ * service worker is shut down whenever it goes idle for ~30s, and opening 20
+ * tabs takes longer than that — in-memory state would be gone by the time the
+ * later tabs finish booting and ask for their job.
  */
 
 const MAX_TABS = 20;
 const DOLA_HOST = /^https:\/\/(www\.)?dola\.com\//i;
 
-// tabId -> { pro: true, skill: "..."|null, createdAt }
-const pendingJobs = new Map();
+const JOB_PREFIX = "job_";
+const jobKey = (tabId) => `${JOB_PREFIX}${tabId}`;
 
 function isDolaUrl(url) {
   return typeof url === "string" && DOLA_HOST.test(url);
@@ -19,6 +24,19 @@ function isDolaUrl(url) {
 
 function wait(ms) {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+async function setJob(tabId, job) {
+  await chrome.storage.session.set({ [jobKey(tabId)]: job });
+}
+
+// Read and delete in one step: a job is meant to be applied exactly once.
+async function takeJob(tabId) {
+  const key = jobKey(tabId);
+  const stored = await chrome.storage.session.get(key);
+  const job = stored[key] || null;
+  if (job) await chrome.storage.session.remove(key);
+  return job;
 }
 
 async function duplicateTabs({ sourceTabId, count, applySettings, skill }) {
@@ -39,8 +57,10 @@ async function duplicateTabs({ sourceTabId, count, applySettings, skill }) {
       active: false
     });
 
+    // Written before the stagger, so a shutdown mid-batch cannot lose the job
+    // for a tab that already exists.
     if (applySettings) {
-      pendingJobs.set(tab.id, {
+      await setJob(tab.id, {
         pro: true,
         skill: skill || null,
         createdAt: Date.now()
@@ -61,17 +81,21 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "DUPLICATE_TABS") {
     duplicateTabs(msg.payload)
       .then(sendResponse)
-      .catch((err) => sendResponse({ ok: false, error: String(err && err.message || err) }));
+      .catch((err) => sendResponse({ ok: false, error: String((err && err.message) || err) }));
     return true; // async
   }
 
   // A freshly opened tab asking: "was I created by the extension?"
   if (msg.type === "GET_JOB") {
     const tabId = sender.tab && sender.tab.id;
-    const job = tabId != null ? pendingJobs.get(tabId) : null;
-    if (tabId != null) pendingJobs.delete(tabId);
-    sendResponse({ job: job || null });
-    return false;
+    if (tabId == null) {
+      sendResponse({ job: null });
+      return false;
+    }
+    takeJob(tabId)
+      .then((job) => sendResponse({ job }))
+      .catch(() => sendResponse({ job: null }));
+    return true; // async
   }
 
   if (msg.type === "JOB_RESULT") {
@@ -82,4 +106,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 });
 
-chrome.tabs.onRemoved.addListener((tabId) => pendingJobs.delete(tabId));
+chrome.tabs.onRemoved.addListener((tabId) => {
+  chrome.storage.session.remove(jobKey(tabId));
+});
