@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="popup.css" />
+  <title>Dola Multi-Tab</title>
+</head>
+<body>
+  <header class="head">
+    <div class="mark" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="head-text">
+      <h1>Dola Multi-Tab</h1>
+      <p id="site-state" class="state state--checking">Checking this tab…</p>
+    </div>
+  </header>
+
+  <main id="panel" class="panel" aria-busy="false">
+
+    <section class="block">
+      <div class="row">
+        <label for="count">Tabs to open</label>
+        <output id="count-out" class="count-out">5</output>
+      </div>
+      <input id="count" type="range" min="1" max="20" step="1" value="5" />
+      <!-- Each tick is one tab; the strip runs out at 20, which is the hard limit. -->
+      <div id="ticks" class="ticks" aria-hidden="true"></div>
+      <p class="hint">Maximum 20 tabs.</p>
+    </section>
+
+    <section class="block">
+      <div class="row">
+        <label for="auto">Set up each tab</label>
+        <input id="auto" type="checkbox" class="switch" checked />
+      </div>
+      <p class="hint">Every new tab switches from Fast to <b>Pro</b>, then opens Skill.</p>
+
+      <div id="skill-area" class="skill-area">
+        <label for="skill" class="sub">Skill</label>
+        <div class="skill-row">
+          <select id="skill">
+            <option value="">Open Skill menu only</option>
+          </select>
+          <button id="load-skills" class="ghost" type="button" title="Read the skill list from the open Dola tab">Load</button>
+        </div>
+        <p id="skill-note" class="hint">Press <b>Load</b> to pull the skill names from your open Dola tab.</p>
+      </div>
+    </section>
+
+    <button id="go" class="go" type="button">Open tabs</button>
+    <p id="status" class="status" role="status"></p>
+  </main>
+
+  <footer class="credit">Created by Soori Academy, Sri Lanka</footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>

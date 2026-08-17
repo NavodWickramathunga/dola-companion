@@ -1,0 +1,177 @@
+/* Dola Multi-Tab — Created by Soori Academy, Sri Lanka */
+
+:root {
+  --ink: #0B0E14;
+  --panel: #141A24;
+  --line: #26303F;
+  --text: #E7EDF5;
+  --muted: #8494A8;
+  --mint: #7DF9C6;
+  --peri: #9DB2FF;
+  --amber: #FFC24B;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  width: 332px;
+  margin: 0;
+  background: var(--ink);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+}
+
+/* ---- header ---- */
+.head {
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  padding: 16px 16px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.mark { display: grid; gap: 3px; width: 22px; }
+.mark span {
+  display: block; height: 5px; border-radius: 2px; background: var(--mint);
+}
+.mark span:nth-child(2) { width: 78%; opacity: .65; }
+.mark span:nth-child(3) { width: 56%; opacity: .35; }
+
+h1 {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+
+.state {
+  margin: 3px 0 0;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.state--checking { color: var(--muted); }
+.state--ok { color: var(--mint); }
+.state--off { color: var(--amber); }
+
+/* ---- panel ---- */
+.panel { padding: 14px 16px 16px; }
+.panel.locked { opacity: .38; pointer-events: none; }
+
+.block {
+  padding: 12px;
+  margin-bottom: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+
+label { font-weight: 600; }
+.sub { display: block; margin: 12px 0 6px; font-weight: 600; color: var(--muted); font-size: 12px; }
+
+.count-out {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--mint);
+  line-height: 1;
+}
+
+.hint { margin: 8px 0 0; color: var(--muted); font-size: 11.5px; line-height: 1.45; }
+.hint b { color: var(--text); font-weight: 600; }
+
+/* ---- slider ---- */
+input[type="range"] {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 3px; margin: 14px 0 10px;
+  background: var(--line); border-radius: 2px; outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 15px; height: 15px; border-radius: 50%;
+  background: var(--mint); border: 3px solid var(--ink);
+  box-shadow: 0 0 0 1px var(--mint); cursor: pointer;
+}
+input[type="range"]:focus-visible { box-shadow: 0 0 0 2px var(--peri); }
+
+/* one tick per tab — the strip ends at 20 */
+.ticks { display: flex; gap: 2px; }
+.ticks i {
+  flex: 1; height: 12px; border-radius: 2px;
+  background: var(--line); transition: background .12s ease;
+}
+.ticks i.on { background: var(--mint); }
+
+/* ---- switch ---- */
+.switch {
+  -webkit-appearance: none; appearance: none;
+  width: 38px; height: 21px; margin: 0;
+  background: var(--line); border-radius: 11px; position: relative; cursor: pointer;
+  transition: background .15s ease;
+}
+.switch::after {
+  content: ""; position: absolute; top: 3px; left: 3px;
+  width: 15px; height: 15px; border-radius: 50%; background: var(--text);
+  transition: transform .15s ease;
+}
+.switch:checked { background: var(--mint); }
+.switch:checked::after { transform: translateX(17px); background: var(--ink); }
+
+/* ---- skill ---- */
+.skill-area { border-top: 1px solid var(--line); margin-top: 12px; }
+.skill-area.hidden { display: none; }
+
+.skill-row { display: flex; gap: 6px; }
+
+select {
+  flex: 1; min-width: 0;
+  padding: 8px 9px;
+  background: var(--ink); color: var(--text);
+  border: 1px solid var(--line); border-radius: 7px;
+  font-family: var(--sans); font-size: 12.5px;
+}
+
+.ghost {
+  padding: 8px 12px;
+  background: transparent; color: var(--peri);
+  border: 1px solid var(--line); border-radius: 7px;
+  font-family: var(--mono); font-size: 11.5px; font-weight: 600; cursor: pointer;
+}
+.ghost:hover { border-color: var(--peri); }
+.ghost:disabled { opacity: .45; cursor: default; }
+
+/* ---- action ---- */
+.go {
+  width: 100%; padding: 12px;
+  background: var(--mint); color: var(--ink);
+  border: 0; border-radius: 9px;
+  font-family: var(--mono); font-size: 13px; font-weight: 700; letter-spacing: .01em;
+  cursor: pointer;
+}
+.go:hover { filter: brightness(1.07); }
+.go:disabled { background: var(--line); color: var(--muted); cursor: default; }
+
+.status { margin: 9px 0 0; min-height: 15px; font-size: 11.5px; color: var(--muted); text-align: center; }
+.status.err { color: var(--amber); }
+.status.ok { color: var(--mint); }
+
+/* ---- credit ---- */
+.credit {
+  padding: 11px 12px;
+  background: var(--mint); color: var(--ink);
+  font-family: var(--mono); font-size: 11.5px; font-weight: 700;
+  letter-spacing: .05em; text-transform: uppercase; text-align: center;
+}
+
+:focus-visible { outline: 2px solid var(--peri); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
